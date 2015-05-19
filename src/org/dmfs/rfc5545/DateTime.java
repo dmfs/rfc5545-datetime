@@ -783,7 +783,7 @@ public final class DateTime
 
 		// build a date string that complies to RFC 5545
 		StringBuilder result = new StringBuilder(16);
-		Instance.writeTo(result, instance, !mAllday);
+		Instance.writeTo(result, instance, mAllday);
 		TimeZone tz = mTimezone;
 		if (!mAllday && tz != null && "UTC".equals(tz.getID()))
 		{
@@ -815,7 +815,7 @@ public final class DateTime
 	{
 		long instance = getInstance();
 
-		Instance.writeTo(out, instance, !mAllday);
+		Instance.writeTo(out, instance, mAllday);
 		TimeZone tz = mTimezone;
 		if (!mAllday && tz != null && "UTC".equals(tz.getID()))
 		{
@@ -842,7 +842,7 @@ public final class DateTime
 	{
 		long instance = getInstance();
 
-		Instance.writeTo(out, instance, !mAllday);
+		Instance.writeTo(out, instance, mAllday);
 		TimeZone tz = mTimezone;
 		if (!mAllday && tz != null && "UTC".equals(tz.getID()))
 		{
