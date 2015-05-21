@@ -67,7 +67,7 @@
 	</target>
 	<!-- Compile project -->
 	<target name="compile">
-		<javac srcdir="${src.dir}" includeantruntime="false">
+		<javac srcdir="${src.dir}" includeantruntime="false" source="1.7" target="1.7">
 			<classpath refid="classpath" />
 		</javac>
 	</target>
