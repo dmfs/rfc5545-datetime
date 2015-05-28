@@ -28,15 +28,18 @@ import org.dmfs.rfc5545.calendarmetrics.GregorianCalendarMetrics;
 /**
  * Represents a DATE-TIME or DATE value as specified in <a href="https://tools.ietf.org/html/rfc5545#section-3.3.5">RFC 5545, Section 3.3.5</a>. This class
  * stores all aspects of a DATE or DATETIME value.
+ * <p>
+ * Objects of this class are immutable.
+ * </p>
  * 
  * @author Marten Gajda <marten@dmfs.org>
  */
 public final class DateTime
 {
 	/**
-	 * The default calendar scale. By default all {@link DateTime} and Date values use the Gregorian calendar scale.
+	 * The default calendar scale. By default all {@link DateTime} and Date values use the Gregorian calendar scale if not specified otherwise.
 	 */
-	public final static CalendarMetrics DEFAULT_CALENDAR_SCALE = new GregorianCalendarMetrics(Weekday.MO, 4);
+	public final static CalendarMetrics GREGORIAN_CALENDAR_SCALE = new GregorianCalendarMetrics(Weekday.MO, 4);
 
 	/**
 	 * Static instance of the time zone UTC.
@@ -51,7 +54,7 @@ public final class DateTime
 	/**
 	 * The {@link TimeZone} of this {@link DateTime} object. May be <code>null</code> if the event is floating.
 	 */
-	private TimeZone mTimezone;
+	private final TimeZone mTimezone;
 
 	/**
 	 * The milliseconds since the epoch of this {@link DateTime}. This will be {@link Long#MAX_VALUE} if it has not been calculated yet.
@@ -78,62 +81,78 @@ public final class DateTime
 	/**
 	 * All-day flag.
 	 */
-	private boolean mAllday;
+	private final boolean mAllday;
 
 
 	/**
-	 * Clone constructor to create a DateTime from another DateTime.
-	 * 
-	 * @param dateTime
-	 *            The {@link DateTime} to clone.
-	 */
-	public DateTime(DateTime dateTime)
-	{
-		mCalendarMetrics = dateTime.mCalendarMetrics;
-		mTimestamp = dateTime.mTimestamp;
-		mTimezone = dateTime.mTimezone;
-		mAllday = dateTime.mAllday;
-		mInstance = dateTime.mInstance;
-		mWeekOfYear = dateTime.mWeekOfYear;
-		mDayOfWeek = dateTime.mDayOfWeek;
-	}
-
-
-	/**
-	 * Clone constructor that changes the {@link CalendarMetrics}. It will represent the same absolute time, but instances will be in another calendar scale.
-	 * You can use this to convert between calendar scales.
+	 * Clone constructor changing the {@link CalendarMetrics}. It will represent the same absolute time, but instances will be in another calendar scale.
+	 * All-day and floating instances will still be all-day respective floating.
 	 * 
 	 * @param calendarMetrics
-	 *            The calendar scale to use.
+	 *            The new calendar scale.
 	 * @param dateTime
-	 *            The {@link DateTime} to clone from.
+	 *            The {@link DateTime} representing the absolute time.
 	 */
 	public DateTime(CalendarMetrics calendarMetrics, DateTime dateTime)
 	{
 		mCalendarMetrics = calendarMetrics;
 		mTimestamp = dateTime.getTimestamp();
 		mTimezone = dateTime.mTimezone;
-		if (dateTime.mAllday)
-		{
-			toAllDay();
-		}
+		// we can just copy the allday flag, because the new DateTime will still be aligned to midnight of that day, regardless of the calendar metrics
+		mAllday = dateTime.mAllday;
 	}
 
 
 	/**
-	 * Create a new {@link DateTime} from the given time stamp using {@link #DEFAULT_CALENDAR_SCALE} and {@link #UTC} time zone.
+	 * Clone constructor that changes the {@link CalendarMetrics} and the {@link TimeZone}. It will represent the same absolute time, but instances will be in
+	 * another calendar scale and time zone. You can use this to convert between calendar scales.
+	 * <p>
+	 * If the given {@link DateTime} is all-day the time zone will be ignored. If the given {@link DateTime} is floating it will be converted to an absolute
+	 * time
+	 * </p>
+	 * 
+	 * @param calendarMetrics
+	 *            The calendar scale to use.
+	 * @param timezone
+	 *            The new {@link TimeZone}.
+	 * @param dateTime
+	 *            The {@link DateTime} to clone from.
+	 */
+	public DateTime(CalendarMetrics calendarMetrics, TimeZone timezone, DateTime dateTime)
+	{
+		mCalendarMetrics = calendarMetrics;
+		mTimestamp = dateTime.getTimestamp();
+		if (dateTime.mAllday)
+		{
+			mTimezone = null;
+			if (calendarMetrics.scaleEquals(dateTime.mCalendarMetrics))
+			{
+				mInstance = dateTime.mInstance;
+			}
+		}
+		else
+		{
+			mTimezone = timezone;
+		}
+		// we can just copy the allday flag, because the new DateTime will still be aligned to midnight of that day, regardless of the calendar metrics
+		mAllday = dateTime.mAllday;
+	}
+
+
+	/**
+	 * Create a new {@link DateTime} from the given time stamp using {@link #GREGORIAN_CALENDAR_SCALE} and {@link #UTC} time zone.
 	 * 
 	 * @param timestamp
 	 *            The time in milliseconds since the epoch of this date-time value.
 	 */
 	public DateTime(long timestamp)
 	{
-		this(DEFAULT_CALENDAR_SCALE, null, timestamp);
+		this(GREGORIAN_CALENDAR_SCALE, UTC, timestamp);
 	}
 
 
 	/**
-	 * Create a new {@link DateTime} from the given time stamp using {@link #DEFAULT_CALENDAR_SCALE} and the given time zone.
+	 * Create a new {@link DateTime} from the given time stamp using {@link #GREGORIAN_CALENDAR_SCALE} and the given time zone.
 	 * 
 	 * @param timezone
 	 *            The {@link TimeZone} of the new instance.
@@ -142,10 +161,20 @@ public final class DateTime
 	 */
 	public DateTime(TimeZone timezone, long timestamp)
 	{
-		this(DEFAULT_CALENDAR_SCALE, timezone, timestamp);
+		this(GREGORIAN_CALENDAR_SCALE, timezone, timestamp);
 	}
 
 
+	/**
+	 * Create a new {@link DateTime} from the given time stamp using the given {@link CalendarMetrics} and the given time zone.
+	 * 
+	 * @param calendarMetrics
+	 *            The {@link CalendarMetrics} of the DateTime.
+	 * @param timezone
+	 *            The {@link TimeZone} of the new instance.
+	 * @param timestamp
+	 *            The time in milliseconds since the epoch of this date-time value.
+	 */
 	public DateTime(CalendarMetrics calendarMetrics, TimeZone timezone, long timestamp)
 	{
 		mCalendarMetrics = calendarMetrics;
@@ -156,8 +185,8 @@ public final class DateTime
 
 
 	/**
-	 * Creates a new {@link DateTime} for the given al-day date using the {@link #DEFAULT_CALENDAR_SCALE}. As a result of this the all-day flag will be set to
-	 * true.
+	 * Creates a new {@link DateTime} for the given all-day date using the {@link #GREGORIAN_CALENDAR_SCALE}. As a result of this the all-day flag will be set
+	 * to <code>true</code>.
 	 * 
 	 * @param year
 	 *            The year of the event.
@@ -168,7 +197,7 @@ public final class DateTime
 	 */
 	public DateTime(int year, int month, int dayOfMonth)
 	{
-		mCalendarMetrics = DEFAULT_CALENDAR_SCALE;
+		mCalendarMetrics = GREGORIAN_CALENDAR_SCALE;
 		mInstance = Instance.make(year, dayOfMonth, dayOfMonth, 0, 0, 0);
 		mTimezone = null;
 		mAllday = true;
@@ -176,7 +205,7 @@ public final class DateTime
 
 
 	/**
-	 * Create a new floating DateTime using {@link #DEFAULT_CALENDAR_SCALE}.
+	 * Create a new floating DateTime using {@link #GREGORIAN_CALENDAR_SCALE}.
 	 * 
 	 * @param year
 	 *            The year.
@@ -198,7 +227,7 @@ public final class DateTime
 
 
 	/**
-	 * Creates a new absolute {@link DateTime} instance in the given {@link TimeZone} using the {@link #DEFAULT_CALENDAR_SCALE}.
+	 * Creates a new absolute {@link DateTime} instance in the given {@link TimeZone} using the {@link #GREGORIAN_CALENDAR_SCALE}.
 	 * 
 	 * @param timezone
 	 *            The {@link TimeZone} of the date, may be <code>null</code> to create a floating date.
@@ -217,7 +246,7 @@ public final class DateTime
 	 */
 	public DateTime(TimeZone timezone, int year, int month, int dayOfMonth, int hours, int minutes, int seconds)
 	{
-		mCalendarMetrics = DEFAULT_CALENDAR_SCALE;
+		mCalendarMetrics = GREGORIAN_CALENDAR_SCALE;
 		mInstance = Instance.make(year, month, dayOfMonth, hours, minutes, seconds);
 		mTimezone = timezone;
 		mAllday = false;
@@ -225,8 +254,10 @@ public final class DateTime
 
 
 	/**
-	 * Creates a new {@link DateTime} for the given al-day date using the given calendar scale. As a result of this the all-day flag will be set to true.
+	 * Creates a new {@link DateTime} for the given all-day date using the given calendar scale. As a result of this the all-day flag will be set to true.
 	 * 
+	 * @param calScale
+	 *            The name of the calendar scale to use.
 	 * @param year
 	 *            The year of the event.
 	 * @param month
@@ -246,6 +277,8 @@ public final class DateTime
 	/**
 	 * Create a new floating DateTime using the given calendar scale.
 	 * 
+	 * @param calScale
+	 *            The name of the calendar scale to use.
 	 * @param year
 	 *            The year.
 	 * @param month
@@ -265,6 +298,26 @@ public final class DateTime
 	}
 
 
+	/**
+	 * Creates a new absolute {@link DateTime} instance in the given {@link TimeZone} and calendar scale.
+	 * 
+	 * @param calScale
+	 *            The name of the calendar scale to use.
+	 * @param timezone
+	 *            The {@link TimeZone} of the date, may be <code>null</code> to create a floating date.
+	 * @param year
+	 *            The year of the date.
+	 * @param month
+	 *            The month.
+	 * @param dayOfMonth
+	 *            The month day.
+	 * @param hours
+	 *            The hours.
+	 * @param minutes
+	 *            The minutes.
+	 * @param seconds
+	 *            The seconds.
+	 */
 	public DateTime(String calScale, TimeZone timezone, int year, int month, int dayOfMonth, int hours, int minutes, int seconds)
 	{
 		mCalendarMetrics = UnicodeCalendarScales.getCalendarMetricsForName(calScale).getCalendarMetrics(Weekday.MO);
@@ -274,6 +327,18 @@ public final class DateTime
 	}
 
 
+	/**
+	 * Creates a new {@link DateTime} for the given all-day date using the given calendar metrics.
+	 * 
+	 * @param calendarMetrics
+	 *            The {@link CalendarMetrics} to use.
+	 * @param year
+	 *            The year of the event.
+	 * @param month
+	 *            The month of the event.
+	 * @param dayOfMonth
+	 *            The monthday of the event.
+	 */
 	public DateTime(CalendarMetrics calendarMetrics, int year, int month, int dayOfMonth)
 	{
 		mCalendarMetrics = calendarMetrics;
@@ -283,18 +348,81 @@ public final class DateTime
 	}
 
 
+	/**
+	 * Create a new floating DateTime using the given calendar metrics.
+	 * 
+	 * @param calendarMetrics
+	 *            The {@link CalendarMetrics} to use.
+	 * @param year
+	 *            The year.
+	 * @param month
+	 *            The month.
+	 * @param dayOfMonth
+	 *            The day of the month.
+	 * @param hours
+	 *            The hour.
+	 * @param minutes
+	 *            The minutes.
+	 * @param seconds
+	 *            The seconds.
+	 */
 	public DateTime(CalendarMetrics calendarMetrics, int year, int month, int dayOfMonth, int hours, int minutes, int seconds)
 	{
 		this(calendarMetrics, null, year, month, dayOfMonth, hours, minutes, seconds);
 	}
 
 
+	/**
+	 * Creates a new absolute {@link DateTime} instance in the given {@link TimeZone} and calendar metrics.
+	 * 
+	 * @param calendarMetrics
+	 *            The {@link CalendarMetrics} to use.
+	 * @param timezone
+	 *            The {@link TimeZone} of the date, may be <code>null</code> to create a floating date.
+	 * @param year
+	 *            The year of the date.
+	 * @param month
+	 *            The month.
+	 * @param dayOfMonth
+	 *            The month day.
+	 * @param hours
+	 *            The hours.
+	 * @param minutes
+	 *            The minutes.
+	 * @param seconds
+	 *            The seconds.
+	 */
 	public DateTime(CalendarMetrics calendarMetrics, TimeZone timezone, int year, int month, int dayOfMonth, int hours, int minutes, int seconds)
 	{
 		mCalendarMetrics = calendarMetrics;
 		mInstance = Instance.make(year, month, dayOfMonth, hours, minutes, seconds);
 		mTimezone = timezone;
 		mAllday = false;
+	}
+
+
+	/**
+	 * Internal constructor to create a {@link DateTime} providing all values. It's private, because we can't trust external entities to pass correct
+	 * parameters.
+	 * 
+	 * @param calendarMetrics
+	 *            The {@link CalendarMetrics} of the new DateTime.
+	 * @param timezone
+	 *            The {@link TimeZone} of the new DateTime, may be <code>null</code> for floating events.
+	 * @param instance
+	 *            The packed instance.
+	 * @param allDay
+	 *            The all-day flag.
+	 * @param timeStamp
+	 *            The time since the epoch in milliseconds.
+	 */
+	private DateTime(CalendarMetrics calendarMetrics, TimeZone timezone, long instance, boolean allDay, long timeStamp)
+	{
+		mCalendarMetrics = calendarMetrics;
+		mInstance = instance;
+		mTimezone = timezone;
+		mAllday = allDay;
+		mTimestamp = timeStamp;
 	}
 
 
@@ -330,35 +458,25 @@ public final class DateTime
 		if (mTimestamp == Long.MAX_VALUE)
 		{
 			long instance = getInstance();
-			return mTimestamp = mCalendarMetrics.toMillis(mTimezone == null ? UTC : mTimezone, Instance.year(instance), Instance.month(instance),
-				Instance.dayOfMonth(instance), Instance.hour(instance), Instance.minute(instance), Instance.second(instance), 0);
+			return mTimestamp = mCalendarMetrics.toMillis(mTimezone, Instance.year(instance), Instance.month(instance), Instance.dayOfMonth(instance),
+				Instance.hour(instance), Instance.minute(instance), Instance.second(instance), 0);
 		}
 		return mTimestamp;
 	}
 
 
 	/**
-	 * Convert this date-time to all-day. This will have no effect if the date-time is already all-day.
+	 * Get an all-day {@link DateTime} representing the day of this {@link DateTime} instance.
 	 */
-	public void toAllDay()
+	public DateTime toAllDay()
 	{
 		if (mAllday)
 		{
-			return;
+			return this;
 		}
 
-		mAllday = true;
-		long instance = mInstance;
-
-		if (instance == Long.MAX_VALUE)
-		{
-			instance = getInstance();
-		}
-
-		mInstance = Instance.make(Instance.year(instance), Instance.month(instance), Instance.dayOfMonth(instance), 0, 0, 0);
-
-		mTimestamp = Long.MAX_VALUE;
-		mTimezone = null;
+		long instance = getInstance();
+		return new DateTime(Instance.year(instance), Instance.month(instance), Instance.dayOfMonth(instance));
 	}
 
 
@@ -371,7 +489,7 @@ public final class DateTime
 	 * @throws IllegalStateException
 	 *             if the date is all-day.
 	 */
-	public void swapTimeZone(TimeZone timezone)
+	public DateTime swapTimeZone(TimeZone timezone)
 	{
 		if (mAllday)
 		{
@@ -380,24 +498,20 @@ public final class DateTime
 
 		TimeZone oldTimeZone = mTimezone;
 
-		if (oldTimeZone == null && timezone == null || oldTimeZone != null && oldTimeZone.hasSameRules(timezone))
+		if (oldTimeZone == null && timezone == null || oldTimeZone != null && oldTimeZone.equals(timezone))
 		{
 			// time zone didn't change
-			return;
+			return this;
 		}
 
 		long timestamp = mTimestamp;
-		if (timestamp == Long.MAX_VALUE || sameTimestamps(oldTimeZone, timezone))
+		if (timestamp == Long.MAX_VALUE || oldTimeZone != null && oldTimeZone.hasSameRules(timezone) || sameTimestamps(oldTimeZone, timezone))
 		{
 			// we don't have a timestamp or we don't need to change it
-			mTimezone = timezone;
-			return;
+			return new DateTime(mCalendarMetrics, timezone, getInstance(), false, timestamp);
 		}
 
-		getInstance();
-		// invalidate time stamp
-		mTimestamp = Long.MAX_VALUE;
-		mTimezone = timezone;
+		return new DateTime(mCalendarMetrics, timezone, getInstance(), false, Long.MAX_VALUE);
 	}
 
 
@@ -410,7 +524,7 @@ public final class DateTime
 	 * @throws IllegalStateException
 	 *             if the date is all-day.
 	 */
-	public void shiftTimeZone(TimeZone timezone)
+	public DateTime shiftTimeZone(TimeZone timezone)
 	{
 		if (mAllday)
 		{
@@ -419,26 +533,21 @@ public final class DateTime
 
 		TimeZone oldTimeZone = mTimezone;
 
-		if (oldTimeZone == null && timezone == null || oldTimeZone != null && oldTimeZone.hasSameRules(timezone))
+		if (oldTimeZone == null && timezone == null || oldTimeZone != null && oldTimeZone.equals(timezone))
 		{
 			// time zone didn't change
-			return;
+			return this;
 		}
 
 		long instance = mInstance;
-		if (instance == Long.MAX_VALUE || sameTimestamps(oldTimeZone, timezone))
+		if (instance == Long.MAX_VALUE || oldTimeZone != null && oldTimeZone.hasSameRules(timezone) || sameTimestamps(oldTimeZone, timezone))
 		{
 			// we don't have an instance or we don't need to change it
-			mTimezone = timezone;
-			return;
+			return new DateTime(mCalendarMetrics, timezone, getInstance(), false, getTimestamp());
+
 		}
 
-		getTimestamp();
-		// invalidate the instance value
-		mInstance = Long.MAX_VALUE;
-		mWeekOfYear = -1;
-		mDayOfWeek = -1;
-		mTimezone = timezone;
+		return new DateTime(timezone, getTimestamp());
 	}
 
 
@@ -504,9 +613,9 @@ public final class DateTime
 
 
 	/**
-	 * Returns the week day of this date-time object.
+	 * Returns the week day of this DateTime object.
 	 * 
-	 * @return The week day of this date-time object.
+	 * @return The week day of this DateTime object.
 	 */
 	public int getDayOfWeek()
 	{
@@ -565,6 +674,55 @@ public final class DateTime
 
 
 	/**
+	 * Add the given duration to this DateTime. This method returns a new DateTime instance that represents the value after the duration has been added. Values
+	 * are added with respect to the time zone, so daylight saving changes are taken into account when adding hours, minutes or seconds.
+	 * 
+	 * @param duration
+	 *            The {@link Duration} to add.
+	 * @return The new {@link DateTime}.
+	 */
+	public DateTime addDuration(Duration duration)
+	{
+		if (duration == null)
+		{
+			throw new IllegalArgumentException("Duration must not be null");
+		}
+
+		if (duration.isZero())
+		{
+			return this;
+		}
+
+		long newInstance = mInstance;
+		if (duration.getRawDays() > 0)
+		{
+			if (duration.getSign() > 0)
+			{
+				newInstance = mCalendarMetrics.nextDay(getInstance(), duration.getRawDays());
+			}
+			else
+			{
+				newInstance = mCalendarMetrics.prevDay(getInstance(), duration.getRawDays());
+			}
+		}
+
+		if (duration.getSecondsOfDay() > 0)
+		{
+			if (mAllday)
+			{
+				throw new IllegalArgumentException("Can't add a duration with time to an all-day DateTime.");
+			}
+			long newTimestamp = newInstance == mInstance ? getTimestamp() : mCalendarMetrics.toMillis(newInstance == Long.MAX_VALUE ? getInstance()
+				: newInstance, mTimezone);
+			newTimestamp += duration.getSign() * duration.getSecondsOfDay() * 1000;
+			return new DateTime(mCalendarMetrics, mTimezone, newTimestamp);
+		}
+
+		return new DateTime(mCalendarMetrics, mTimezone, newInstance, mAllday, Long.MAX_VALUE);
+	}
+
+
+	/**
 	 * Get the packed instance value of this DateTime. This is mostly for internal use.
 	 * 
 	 * @return The packed instance value.
@@ -614,7 +772,7 @@ public final class DateTime
 
 	/**
 	 * Parses a date-time string as specified in <a href="https://tools.ietf.org/html/rfc5545#section-3.3.5">RFC 5545, Section 3.3.5</a>. This method uses the
-	 * default calendar scale {@link #DEFAULT_CALENDAR_SCALE}. Unless the given String ends with "Z" the resulting {@link DateTime} will be floating.
+	 * default calendar scale {@link #GREGORIAN_CALENDAR_SCALE}. Unless the given String ends with "Z" the resulting {@link DateTime} will be floating.
 	 * 
 	 * @param string
 	 *            A valid date-time string.
@@ -624,13 +782,13 @@ public final class DateTime
 	 */
 	public static DateTime parse(String string)
 	{
-		return parse(DEFAULT_CALENDAR_SCALE, null, string);
+		return parse(GREGORIAN_CALENDAR_SCALE, null, string);
 	}
 
 
 	/**
 	 * Parses a date-time string as specified in <a href="https://tools.ietf.org/html/rfc5545#section-3.3.5">RFC 5545, Section 3.3.5</a>. This method uses the
-	 * default calendar scale {@link #DEFAULT_CALENDAR_SCALE}.
+	 * default calendar scale {@link #GREGORIAN_CALENDAR_SCALE}.
 	 * 
 	 * @param timeZone
 	 *            A time zone to apply to non-allday and non-UTC date-time values. If timeZone is <code>null</code> the event will be floating.
@@ -642,13 +800,13 @@ public final class DateTime
 	 */
 	public static DateTime parse(String timeZone, String string)
 	{
-		return parse(DEFAULT_CALENDAR_SCALE, timeZone == null ? null : TimeZone.getTimeZone(timeZone), string);
+		return parse(GREGORIAN_CALENDAR_SCALE, timeZone == null ? null : TimeZone.getTimeZone(timeZone), string);
 	}
 
 
 	/**
 	 * Parses a date-time string as specified in <a href="https://tools.ietf.org/html/rfc5545#section-3.3.5">RFC 5545, Section 3.3.5</a>. This method uses the
-	 * default calendar scale {@link #DEFAULT_CALENDAR_SCALE}.
+	 * default calendar scale {@link #GREGORIAN_CALENDAR_SCALE}.
 	 * 
 	 * @param timeZone
 	 *            A time zone to apply to non-allday and non-UTC date-time values. If timeZone is <code>null</code> the event will be floating.
@@ -660,7 +818,7 @@ public final class DateTime
 	 */
 	public static DateTime parse(TimeZone timeZone, String string)
 	{
-		return parse(DEFAULT_CALENDAR_SCALE, timeZone, string);
+		return parse(GREGORIAN_CALENDAR_SCALE, timeZone, string);
 	}
 
 
