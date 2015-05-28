@@ -26,7 +26,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 
 @RunWith(Suite.class)
-@SuiteClasses({ CalendarMetricsTest.class, GregorianCalendarMetricsTest.class, JulianCalendarMetricsTest.class, InstanceTest.class, })
+@SuiteClasses({ CalendarMetricsTest.class, GregorianCalendarMetricsTest.class, JulianCalendarMetricsTest.class, InstanceTest.class, DateTimeTest.class,
+	DurationTest.class })
 public class AllTests
 {
 

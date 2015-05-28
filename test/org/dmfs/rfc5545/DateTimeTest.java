@@ -22,6 +22,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.dmfs.rfc5545.calendarmetrics.CalendarMetrics;
@@ -233,4 +236,64 @@ public class DateTimeTest
 			DateTime.parse("Europe/Berlin", "20150331T120000").addDuration(Duration.parse("-P2DT24H")));
 
 	}
+
+
+	@Test
+	public void testDateTimeIntIntInt()
+	{
+		CalendarMetrics tools = new GregorianCalendarMetrics(Weekday.MO, 4);
+
+		for (int year = 1600; year < 3000; ++year)
+		{
+			for (int month = 0; month < tools.getMonthsPerYear(year); ++month)
+			{
+				for (int day = 1; day <= tools.getDaysPerPackedMonth(year, month); ++day)
+				{
+
+					DateTime dt = new DateTime(year, month, day);
+					assertEquals(year, dt.getYear());
+					assertEquals(month, dt.getMonth());
+					assertEquals(day, dt.getDayOfMonth());
+				}
+			}
+		}
+	}
+
+
+	@Test
+	public void testGetTimestamp()
+	{
+		for (String z : new String[] { "America/Bogota", "America/Los_Angeles", "America/New_York", "UTC", "GMT", "Europe/Berlin", "Asia/Peking", "Asia/Tokyo",
+			"Australia/Sidney" })
+		{
+			TimeZone zone = TimeZone.getTimeZone(z);
+			java.util.Calendar testCal = new GregorianCalendar(zone, Locale.US);
+			testCal.setMinimalDaysInFirstWeek(4);
+			testCal.setFirstDayOfWeek(Calendar.MONDAY);
+			testCal.setTimeInMillis(0);
+
+			CalendarMetrics tools = new GregorianCalendarMetrics(Weekday.MO, 4);
+
+			for (int year = 1600; year < 3000; ++year)
+			{
+				for (int month = 0; month < tools.getMonthsPerYear(year); ++month)
+				{
+					for (int day = 1; day <= tools.getDaysPerPackedMonth(year, month); ++day)
+					{
+						for (int hour = 0; hour < 24; ++hour)
+						{
+							for (int minute = 0; minute < 60; ++minute)
+							{
+								testCal.set(year, month, day, hour, minute, 0);
+
+								long timestamp = new DateTime(tools, zone, year, month, day, hour, minute, 0).getTimestamp();
+								assertEquals(testCal.getTimeInMillis(), timestamp);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 }

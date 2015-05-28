@@ -198,7 +198,7 @@ public final class DateTime
 	public DateTime(int year, int month, int dayOfMonth)
 	{
 		mCalendarMetrics = GREGORIAN_CALENDAR_SCALE;
-		mInstance = Instance.make(year, dayOfMonth, dayOfMonth, 0, 0, 0);
+		mInstance = Instance.make(year, month, dayOfMonth, 0, 0, 0);
 		mTimezone = null;
 		mAllday = true;
 	}
