@@ -693,7 +693,21 @@ public final class DateTime
 			return this;
 		}
 
+		if (mAllday && duration.getSecondsOfDay() > 0)
+		{
+			throw new IllegalArgumentException("Can't add a duration with time to an all-day DateTime.");
+		}
+
 		long newInstance = mInstance;
+		if (newInstance == Long.MAX_VALUE && (mTimezone == null || !mTimezone.useDaylightTime()))
+		{
+			/*
+			 * We don't have an instance value yet and timezone is null or it doesn't use daylight savings. That means, we can save a lot of time if we don't
+			 * calculate the instance value, but add the milliseconds of the duration to the timestamp.
+			 */
+			return new DateTime(mCalendarMetrics, mTimezone, Long.MAX_VALUE, mAllday, mTimestamp + duration.toMillis());
+		}
+
 		if (duration.getRawDays() > 0)
 		{
 			if (duration.getSign() > 0)
@@ -706,19 +720,15 @@ public final class DateTime
 			}
 		}
 
-		if (duration.getSecondsOfDay() > 0)
+		if (duration.getSecondsOfDay() == 0)
 		{
-			if (mAllday)
-			{
-				throw new IllegalArgumentException("Can't add a duration with time to an all-day DateTime.");
-			}
-			long newTimestamp = newInstance == mInstance ? getTimestamp() : mCalendarMetrics.toMillis(newInstance == Long.MAX_VALUE ? getInstance()
-				: newInstance, mTimezone);
-			newTimestamp += duration.getSign() * duration.getSecondsOfDay() * 1000;
-			return new DateTime(mCalendarMetrics, mTimezone, newTimestamp);
+			return new DateTime(mCalendarMetrics, mTimezone, newInstance, mAllday, Long.MAX_VALUE);
 		}
 
-		return new DateTime(mCalendarMetrics, mTimezone, newInstance, mAllday, Long.MAX_VALUE);
+		long newTimestamp = newInstance == mInstance ? getTimestamp() : mCalendarMetrics.toMillis(newInstance == Long.MAX_VALUE ? getInstance() : newInstance,
+			mTimezone);
+		newTimestamp += duration.getSign() * duration.getSecondsOfDay() * 1000;
+		return new DateTime(mCalendarMetrics, mTimezone, newTimestamp);
 	}
 
 

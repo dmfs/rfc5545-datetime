@@ -19,6 +19,7 @@ package org.dmfs.rfc5545;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.TimeZone;
 
 
 /**
@@ -125,7 +126,7 @@ public final class Duration
 	 */
 	public boolean isZero()
 	{
-		return mDays == 0 && mTime == 0;
+		return mDays + mTime == 0; // since both, mDays and mTime, are >= 0 this only evaluates to true if both equal 0
 	}
 
 
@@ -147,7 +148,7 @@ public final class Duration
 	 */
 	public int getWeeks()
 	{
-		return mDays % 7 == 0 && mTime == 0 ? mDays / 7 : 0;
+		return (mDays % 7) + mTime == 0 ? mDays / 7 : 0;
 	}
 
 
@@ -160,7 +161,7 @@ public final class Duration
 	 */
 	public int getDays()
 	{
-		return mDays % 7 != 0 || mTime != 0 ? mDays : 0;
+		return (mDays % 7) + mTime > 0 ? mDays : 0;
 	}
 
 
@@ -223,6 +224,42 @@ public final class Duration
 	public int getSecondsOfDay()
 	{
 		return mTime;
+	}
+
+
+	/**
+	 * Returns the value of this Duration in milliseconds, assuming days of 24 hours. This is not always correct. The actual number of milliseconds may be less
+	 * if a daylight savings transition occurs in a specific interval.
+	 * 
+	 * @return The duration in milliseconds.
+	 */
+	public long toMillis()
+	{
+		return mSign * (mDays * 24L * 3600L + mTime) * 1000L;
+	}
+
+
+	/**
+	 * Add this duration to the given timestamp, taking daylight savings in the given time zone into account.
+	 * 
+	 * @param timezone
+	 *            The {@link TimeZone} of the event or <code>null</code> in case of a floating event.
+	 * @param timestamp
+	 *            The timestamp in milliseconds since the epoch.
+	 * @return The new timestamp.
+	 */
+	public long addTo(TimeZone timezone, long timestamp)
+	{
+		if (isZero())
+		{
+			return timestamp;
+		}
+		if (timezone == null || !timezone.useDaylightTime())
+		{
+			// if the timezone doesn't have daylight time we can simply add the duration in milliseconds to the timestamp
+			return timestamp + toMillis();
+		}
+		return new DateTime(timezone, timestamp).addDuration(this).getTimestamp();
 	}
 
 
