@@ -249,7 +249,7 @@ public abstract class NoLeapMonthCalendarMetrics extends CalendarMetrics
 	@Override
 	public long prevDay(long instance)
 	{
-		int day = Instance.dayOfMonth(instance) - 1;
+		int day = Math.min(Instance.dayOfMonth(instance) - 1, getDaysPerPackedMonth(Instance.year(instance), Instance.month(instance)));
 
 		if (day <= 0)
 		{
