@@ -77,7 +77,7 @@ public class IslamicCalendarMetrics extends NoLeapMonthCalendarMetrics
 		* 30 + 4 /* months à 29 days */* 29 + 21 /* days */) * MILLIS_PER_DAY;
 
 	public final static String CALENDAR_SCALE_TLBA = "ISLAMIC-TLBA";
-	public final static String CALENDAR_SCALE_CIVIL = "ISLAMIC_CIVIL";
+	public final static String CALENDAR_SCALE_CIVIL = "ISLAMIC-CIVIL";
 
 	/**
 	 * An array of (packed) patterns based on different leap year rules.
