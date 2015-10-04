@@ -20,6 +20,7 @@ package org.dmfs.rfc5545;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -37,6 +38,62 @@ public class DateTimeTest
 {
 
 	private final static String[] TESTDATES = { "19000101T000000", "19700101T000000", "20140330T010000", "20140414T132231" };
+
+
+	@Test
+	public void testAfter()
+	{
+		assertTrue(DateTime.parse("19700101").after(DateTime.parse("19691231")));
+		assertTrue(DateTime.parse("19700101T000000Z").after(new DateTime(-1)));
+		assertTrue(new DateTime(0).after(new DateTime(-1)));
+		assertFalse(DateTime.parse("19700101").after(DateTime.parse("19700102")));
+		assertFalse(DateTime.parse("19691231").after(DateTime.parse("19700101")));
+		assertFalse(DateTime.parse("19700101T000000Z").after(new DateTime(0)));
+		assertFalse(new DateTime(-1).after(DateTime.parse("19700101T000000Z")));
+		assertFalse(new DateTime(-1).after(new DateTime(0)));
+
+		assertFalse(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000").after(
+			DateTime.parse(TimeZone.getTimeZone("UTC"), "19700101T000000")));
+		assertFalse(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000").after(new DateTime(0)));
+		assertFalse(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000").after(
+			DateTime.parse(TimeZone.getTimeZone("Europe/Amsterdam"), "19700101T000000")));
+		assertFalse(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000").after(new DateTime(TimeZone.getTimeZone("Europe/Amsterdam"), 0)));
+
+		assertTrue(DateTime.parse(TimeZone.getTimeZone("UTC"), "19700101T000000").after(
+			DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000")));
+		assertTrue(new DateTime(0).after(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000")));
+		assertFalse(DateTime.parse(TimeZone.getTimeZone("Europe/Amsterdam"), "19700101T000000").after(
+			DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000")));
+		assertTrue(new DateTime(TimeZone.getTimeZone("Europe/Amsterdam"), 0).after(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000")));
+	}
+
+
+	@Test
+	public void testBefore()
+	{
+		assertFalse(DateTime.parse("19700101").before(DateTime.parse("19691231")));
+		assertFalse(DateTime.parse("19700101T000000Z").before(new DateTime(-1)));
+		assertFalse(new DateTime(0).before(new DateTime(-1)));
+		assertTrue(DateTime.parse("19700101").before(DateTime.parse("19700102")));
+		assertTrue(DateTime.parse("19691231").before(DateTime.parse("19700101")));
+		assertFalse(DateTime.parse("19700101T000000Z").before(new DateTime(0)));
+		assertTrue(new DateTime(-1).before(DateTime.parse("19700101T000000Z")));
+		assertTrue(new DateTime(-1).before(new DateTime(0)));
+
+		assertTrue(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000").before(
+			DateTime.parse(TimeZone.getTimeZone("UTC"), "19700101T000000")));
+		assertTrue(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000").before(new DateTime(0)));
+		assertFalse(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000").before(
+			DateTime.parse(TimeZone.getTimeZone("Europe/Amsterdam"), "19700101T000000")));
+		assertTrue(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000").before(new DateTime(TimeZone.getTimeZone("Europe/Amsterdam"), 0)));
+
+		assertFalse(DateTime.parse(TimeZone.getTimeZone("UTC"), "19700101T000000").before(
+			DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000")));
+		assertFalse(new DateTime(0).before(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000")));
+		assertFalse(DateTime.parse(TimeZone.getTimeZone("Europe/Amsterdam"), "19700101T000000").before(
+			DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000")));
+		assertFalse(new DateTime(TimeZone.getTimeZone("Europe/Amsterdam"), 0).before(DateTime.parse(TimeZone.getTimeZone("Europe/Berlin"), "19700101T000000")));
+	}
 
 
 	@Test
