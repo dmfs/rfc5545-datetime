@@ -760,6 +760,19 @@ public final class DateTime
 	 */
 	public boolean after(DateTime that)
 	{
+		if (that.mInstance != Long.MAX_VALUE && (that.mTimestamp == Long.MAX_VALUE || mInstance != Long.MAX_VALUE)
+			&& mCalendarMetrics.scaleEquals(that.mCalendarMetrics) && mAllday == that.mAllday)
+		{
+			// either both DateTimes have an instance value or the other DateTime has no timestamp but an instance value.
+			// in this case we compare by instance if calendar scale and allday or timezone are the same
+
+			if (sameTimestamps(mTimezone, that.mTimezone))
+			{
+				// calendarmetrics and timezone are the same, so we can simply compare the instance values
+				return getInstance() > that.mInstance;
+			}
+		}
+
 		return getTimestamp() > that.getTimestamp();
 	}
 
@@ -776,6 +789,19 @@ public final class DateTime
 	 */
 	public boolean before(DateTime that)
 	{
+		if (that.mInstance != Long.MAX_VALUE && (that.mTimestamp == Long.MAX_VALUE || mInstance != Long.MAX_VALUE)
+			&& mCalendarMetrics.scaleEquals(that.mCalendarMetrics) && mAllday == that.mAllday)
+		{
+			// either both DateTimes have an instance value or the other DateTime has no timestamp but an instance value.
+			// in this case we compare by instance if calendar scale and allday or timezone are the same
+
+			if (sameTimestamps(mTimezone, that.mTimezone))
+			{
+				// calendarmetrics and timezone are the same, so we can simply compare the instance values
+				return getInstance() < that.mInstance;
+			}
+		}
+
 		return getTimestamp() < that.getTimestamp();
 	}
 
