@@ -37,7 +37,7 @@ import org.junit.Test;
 public class DateTimeTest
 {
 
-	private final static String[] TESTDATES = { "19000101T000000", "19700101T000000", "20140330T010000", "20140414T132231" };
+	private final static String[] TESTDATES = { "19000101T000000", "19700101T020000", "20140330T070000", "20140414T132231" };
 
 
 	@Test
@@ -230,15 +230,18 @@ public class DateTimeTest
 
 					DateTime modifiedDate = originalDate.shiftTimeZone(toZone);
 
-					// DateTime expectedDate = DateTime.parse(toZone, testdate);
+					DateTime expectedDate = new DateTime(toZone, originalDate.getTimestamp());
 
 					// the absolute time of the modified instance should equal the one in the new time zone
 					assertEquals(originalDate.getTimestamp(), modifiedDate.getTimestamp());
 
 					// the time zone should be correct of course
 					assertEquals(toZone, modifiedDate.getTimeZone());
+
 					// the local time should equal the original local time
-					// assertEquals(originalDate.getInstance(), modifiedDate.getInstance());
+					assertEquals(
+						"" + testdate + " " + fromTimezone + "  " + toTimezone + "  " + originalDate.getTimestamp() + "  " + expectedDate.getTimestamp(),
+						expectedDate.toString(), modifiedDate.toString());
 				}
 			}
 		}

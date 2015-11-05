@@ -85,6 +85,52 @@ public final class DateTime
 
 
 	/**
+	 * Return a new {@link DateTime} having the current date and time in {@link #UTC}. This is short for
+	 * <code>new DateTime(DateTime.GREGORIAN_CALENDAR_SCALE, DateTime.UTC, System.currentTimeMillis())</code>.
+	 */
+	public static DateTime now()
+	{
+		return now(UTC);
+	}
+
+
+	/**
+	 * Return a new {@link DateTime} having the current date and time in the local TimeZone. This is short for
+	 * <code>new DateTime(DateTime.GREGORIAN_CALENDAR_SCALE, TimeZone.getDefault(), System.currentTimeMillis())</code>.
+	 */
+	public static DateTime nowAndHere()
+	{
+		return now(TimeZone.getDefault());
+	}
+
+
+	/**
+	 * Return a new {@link DateTime} having the current date and time in the given {@link TimeZone}. This is short for
+	 * <code>new DateTime(DateTime.GREGORIAN_CALENDAR_SCALE, timeZone, System.currentTimeMillis())</code>.
+	 * 
+	 * @param timeZone
+	 *            The {@link TimeZone} of the {@link DateTime} instance.
+	 */
+	public static DateTime now(TimeZone timeZone)
+	{
+		return new DateTime(GREGORIAN_CALENDAR_SCALE, timeZone, System.currentTimeMillis());
+	}
+
+
+	/**
+	 * Return a new {@link DateTime} having the current date. This is short for
+	 * <code>new DateTime(DateTime.GREGORIAN_CALENDAR_SCALE, TimeZone.getDefault(), System.currentTimeMillis()).toAllDay()</code>.
+	 */
+	public static DateTime today()
+	{
+		TimeZone tz = TimeZone.getDefault();
+		long nowInstance = GREGORIAN_CALENDAR_SCALE.toInstance(System.currentTimeMillis(), tz);
+		return new DateTime(GREGORIAN_CALENDAR_SCALE, null, Instance.setSecond(Instance.setMinute(Instance.setHour(nowInstance, 0), 0), 0), true,
+			Long.MAX_VALUE);
+	}
+
+
+	/**
 	 * Clone constructor changing the {@link CalendarMetrics}. It will represent the same absolute time, but instances will be in another calendar scale.
 	 * All-day and floating instances will still be all-day respective floating.
 	 * 
@@ -519,6 +565,8 @@ public final class DateTime
 	 * Replace the current time zone by the given one, keeping the absolute time constant. In effect the local time will change by the difference of the offsets
 	 * to UTC of both time zones.
 	 * 
+	 * FIXME: There is a problem in case the time falls on a DST change. In that case the time might not be calculated as expected.
+	 * 
 	 * @param timezone
 	 *            The new {@link TimeZone}.
 	 * @throws IllegalStateException
@@ -543,8 +591,7 @@ public final class DateTime
 		if (instance == Long.MAX_VALUE || oldTimeZone != null && oldTimeZone.hasSameRules(timezone) || sameTimestamps(oldTimeZone, timezone))
 		{
 			// we don't have an instance or we don't need to change it
-			return new DateTime(mCalendarMetrics, timezone, getInstance(), false, getTimestamp());
-
+			return new DateTime(mCalendarMetrics, timezone, instance, false, getTimestamp());
 		}
 
 		return new DateTime(timezone, getTimestamp());
