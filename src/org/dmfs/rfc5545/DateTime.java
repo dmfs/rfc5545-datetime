@@ -527,6 +527,24 @@ public final class DateTime
 
 
 	/**
+	 * Return the start of this day. If this DateTime is floating or an all-day date, the result will be a floating DateTime at 0:00 local time. If this
+	 * DateTime is not floating, the result will be at 0:00 in the current {@link TimeZone}.
+	 * 
+	 * @return The start of this day.
+	 */
+	public DateTime startOfDay()
+	{
+		if (!mAllday && getHours() == 0 && getMinutes() == 0 && getSeconds() == 0)
+		{
+			// this already is the start of the day.
+			return this;
+		}
+
+		return new DateTime(mCalendarMetrics, mTimezone, getYear(), getMonth(), getDayOfMonth(), 0, 0, 0);
+	}
+
+
+	/**
 	 * Replace the current time zone by the given one, keeping the local time constant. In effect the absolute time will change by the difference of the offsets
 	 * to UTC of both time zones. Use this to convert a floating time to an absolute time in specific time zone.
 	 * 
