@@ -1,0 +1,33 @@
+apply plugin: 'java-library'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+def gitVersion = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+configurations {
+    pom
+}
+
+apply from: 'publish.gradle'
+apply from: 'jacoco.gradle'
+
+allprojects {
+    group 'org.dmfs'
+    version gitVersion()
+    repositories {
+        mavenCentral()
+    }
+}
+
+dependencies {
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'org.hamcrest:hamcrest-all:1.3'
+}
