@@ -23,7 +23,6 @@ package org.dmfs.rfc5545;
  * <code>Weekday.MO.ordinal() == 1 </code>...).
  * <p>
  * Please note that the ordinal value is not compatible with the day values of {@link java.util.Calendar}.
- * </p>
  */
 public enum Weekday
 {

@@ -30,12 +30,10 @@ import java.util.TimeZone;
  * Storing the values of an instance in a single long allows to compare them quickly and it doesn't require any object instantiations.
  * <p>
  * Note that the instance value alone doesn't say much without the corresponding {@link CalendarMetrics} and {@link TimeZone}.
- * </p>
  * <p>
  * Also note: never persist packed instance values. The implementation and the format of the packed long may change.
- * </p>
  *
- * @author Marten Gajda <marten@dmfs.org>
+ * @author Marten Gajda
  */
 public final class Instance
 {

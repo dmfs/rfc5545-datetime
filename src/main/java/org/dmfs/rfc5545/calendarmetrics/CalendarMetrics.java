@@ -29,13 +29,11 @@ import java.util.TimeZone;
  * Please note that most methods use a <em>packed month</em> instead of just a month number. That's due to the need to specify leap months in certain
  * calendaring systems. Do <em>not</em> make any assumptions about the format of the packed month since this is an internal implementation detail. To get the
  * actual month number and the leap month flag use {@link #monthNum(int)} and {@link #isLeapMonth(int)}.
- * </p>
  * <p>
  * However, packed months are integers that are guaranteed to be comparable with respect to their natural order. So if <code>a</code> and <code>b</code> are two
  * packed months, it's guaranteed that <code>a&lt;b</code> if <code>a</code> comes before <code>b</code> in the year.
- * </p>
  *
- * @author Marten Gajda <marten@dmfs.org>
+ * @author Marten Gajda
  */
 public abstract class CalendarMetrics
 {

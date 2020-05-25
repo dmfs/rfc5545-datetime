@@ -30,9 +30,8 @@ import java.util.TimeZone;
  * stores all aspects of a DATE or DATETIME value.
  * <p>
  * Objects of this class are immutable.
- * </p>
  *
- * @author Marten Gajda <marten@dmfs.org>
+ * @author Marten Gajda
  */
 public final class DateTime
 {
@@ -104,7 +103,6 @@ public final class DateTime
      * <p>
      * If the given {@link DateTime} is all-day the time zone will be ignored. If the given {@link DateTime} is floating it will be converted to an absolute
      * time
-     * </p>
      *
      * @param calendarMetrics
      *         The calendar scale to use.
@@ -558,7 +556,6 @@ public final class DateTime
      * (i.e. always local time).
      * <p>
      * Use {@link #swapTimeZone(TimeZone)} to set a specific time zone.
-     * </p>
      *
      * @param calendarMetrics
      *         The {@link CalendarMetrics} to use.
@@ -1031,7 +1028,6 @@ public final class DateTime
      * Check if another date is earlier in time than this one.
      * <p>
      * Note: it doesn't make sense to compare a floating time to an absolute time. However, this method won't complain and treat floating times like UTC times.
-     * </p>
      *
      * @param that
      *         The {@link DateTime} to compare to.
@@ -1061,7 +1057,6 @@ public final class DateTime
      * Check if another date is later in time than this one.
      * <p>
      * Note: it doesn't make sense to compare a floating time to an absolute time. However, this method won't complain and treat floating times like UTC times.
-     * </p>
      *
      * @param that
      *         The {@link DateTime} to compare to.
@@ -1142,7 +1137,6 @@ public final class DateTime
      * <p>
      * Write the date-time string represented by this object to the given {@link StringBuilder}. The written value conforms to <a
      * href="https://tools.ietf.org/html/rfc5545#section-3.3.5">RFC 5545, Section 3.3.5</a>.
-     * </p>
      * <h3>Examples:</h3>
      *
      * <pre>
@@ -1171,7 +1165,7 @@ public final class DateTime
 
     /**
      * Write the date-time string represented by this object to the given {@link Writer}.. The written value conforms to <a
-     * href="https://tools.ietf.org/html/rfc5545#section-3.3.5">RFC 5545, Section 3.3.5</a>. </p> <h3>Examples:</h3>
+     * href="https://tools.ietf.org/html/rfc5545#section-3.3.5">RFC 5545, Section 3.3.5</a>. <h3>Examples:</h3>
      *
      * <pre>
      * 20150320

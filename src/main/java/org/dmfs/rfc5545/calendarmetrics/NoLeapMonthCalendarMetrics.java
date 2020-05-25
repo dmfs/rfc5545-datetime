@@ -26,9 +26,8 @@ import org.dmfs.rfc5545.Weekday;
  * allows to share code.
  * <p>
  * Knowing that a calendar scale has no leap months also allows to return the plain month number as packed month, which makes month handling much easier.
- * </p>
  *
- * @author Marten Gajda <marten@dmfs.org>
+ * @author Marten Gajda
  */
 public abstract class NoLeapMonthCalendarMetrics extends CalendarMetrics
 {

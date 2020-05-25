@@ -26,7 +26,7 @@ import java.util.TimeZone;
 /**
  * Provides a set of methods that provide information about the Julian Calendar.
  *
- * @author Marten Gajda <marten@dmfs.org>
+ * @author Marten Gajda
  */
 /*
  * Even though Gregorian is an improved version of the Julian calendar, we handle it the other way round here.
