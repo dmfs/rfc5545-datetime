@@ -37,7 +37,7 @@ public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
         @Override
         public CalendarMetrics getCalendarMetrics(Weekday weekStart)
         {
-            return new GregorianCalendarMetrics(weekStart, 4);
+            return new GregorianCalendarMetrics(CALENDAR_SCALE_ALIAS, weekStart, 4);
         }
 
 
@@ -75,7 +75,21 @@ public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
      */
     public GregorianCalendarMetrics(Weekday weekStart, int minDaysInFirstWeek)
     {
-        super(weekStart, minDaysInFirstWeek);
+        super(CALENDAR_SCALE_ALIAS, weekStart, minDaysInFirstWeek);
+    }
+
+
+    /**
+     * Create calendar metrics for a Gregorian calendar with the given week numbering.
+     *
+     * @param weekStart
+     *         The first day of the week.
+     * @param minDaysInFirstWeek
+     *         The minimal number of days in the first week.
+     */
+    GregorianCalendarMetrics(String name, Weekday weekStart, int minDaysInFirstWeek)
+    {
+        super(name, weekStart, minDaysInFirstWeek);
     }
 
 

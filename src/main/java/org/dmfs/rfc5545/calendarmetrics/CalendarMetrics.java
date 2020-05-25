@@ -53,11 +53,15 @@ public abstract class CalendarMetrics
      */
     public final int minDaysInFirstWeek;
 
-    public CalendarMetrics(Weekday weekStart, int minDaysInFirstWeek)
+    private final String mName;
+
+
+    public CalendarMetrics(String name, Weekday weekStart, int minDaysInFirstWeek)
     {
         this.weekStart = weekStart;
         this.weekStartInt = weekStart.ordinal();
         this.minDaysInFirstWeek = minDaysInFirstWeek;
+        this.mName = name;
     }
 
 
@@ -227,7 +231,6 @@ public abstract class CalendarMetrics
      */
     public abstract int getMaxMonthDayNum();
 
-
     /**
      * Returns the largest year day number that the current calendar supports.
      *
@@ -235,14 +238,12 @@ public abstract class CalendarMetrics
      */
     public abstract int getMaxYearDayNum();
 
-
     /**
      * Returns the largest week number that the current calendar supports.
      *
      * @return The maximum ISO week number in this calendar scale.
      */
     public abstract int getMaxWeekNoNum();
-
 
     /**
      * Get the number of days in a specific packed month.
@@ -256,7 +257,6 @@ public abstract class CalendarMetrics
      */
     public abstract int getDaysPerPackedMonth(int year, int packedMonth);
 
-
     /**
      * Determines the month of a given day of year.
      *
@@ -269,7 +269,6 @@ public abstract class CalendarMetrics
      */
     public abstract int getPackedMonthOfYearDay(int year, int yearDay);
 
-
     /**
      * Determines the day of month for a given day of year.
      *
@@ -281,7 +280,6 @@ public abstract class CalendarMetrics
      * @return the month day.
      */
     public abstract int getDayOfMonthOfYearDay(int year, int yearDay);
-
 
     /**
      * Determines the month and day for a given day of year. The result contains both, packed month and day in a single integer. To split the values use {@link
@@ -302,7 +300,6 @@ public abstract class CalendarMetrics
      */
     public abstract int getMonthAndDayOfYearDay(int year, int yearDay);
 
-
     /**
      * Get the number of days preceding the given month in the given year.
      *
@@ -315,7 +312,6 @@ public abstract class CalendarMetrics
      */
     public abstract int getYearDaysForPackedMonth(int year, int packedMonth);
 
-
     /**
      * Get the number of months in the given year.
      *
@@ -326,7 +322,6 @@ public abstract class CalendarMetrics
      */
     public abstract int getMonthsPerYear(int year);
 
-
     /**
      * Get the number of days in the given year.
      *
@@ -336,7 +331,6 @@ public abstract class CalendarMetrics
      * @return The number of days in that year.
      */
     public abstract int getDaysPerYear(int year);
-
 
     /**
      * Get the number of ISO weeks in the given year.
@@ -438,7 +432,6 @@ public abstract class CalendarMetrics
      */
     public abstract int getDayOfYear(int year, int packedMonth, int dayOfMonth);
 
-
     /**
      * Get the day of the year for the specified ISO week date, see <a href="http://en.wikipedia.org/wiki/ISO_week_date">ISO week date</a>
      * <p>
@@ -457,7 +450,6 @@ public abstract class CalendarMetrics
      */
     public abstract int getYearDayOfIsoYear(int year, int weekOfYear, int dayOfWeek);
 
-
     /**
      * Get the weekday of the first day (which is January the 1st in a Gregorian Calendar) in the given year.
      *
@@ -467,7 +459,6 @@ public abstract class CalendarMetrics
      * @return The weekday number.
      */
     public abstract int getWeekDayOfFirstYearDay(int year);
-
 
     /**
      * Get the day of year of the start of the first week in a year. Note this method returns values below 1 if the start of the week is in the previous year.
@@ -479,7 +470,6 @@ public abstract class CalendarMetrics
      * @return The day of year.
      */
     public abstract int getYearDayOfFirstWeekStart(int year);
-
 
     /**
      * Get the day of year of the start of the given week in a year. Note this method returns values below 1 if the start of the week is in the previous year.
@@ -535,7 +525,6 @@ public abstract class CalendarMetrics
      * @return The milliseconds since the epoch.
      */
     public abstract long toMillis(TimeZone timeZone, int year, int packedMonth, int dayOfMonth, int hours, int minutes, int seconds, int millis);
-
 
     /**
      * Converts a timestamp to an instance in the given {@link TimeZone}.
@@ -628,7 +617,6 @@ public abstract class CalendarMetrics
      */
     public abstract long nextMonth(long instance, int n);
 
-
     /**
      * Moves the given instance backward by one month. In many cases this is faster than {@link #prevMonth(long, int)} with <code>n = 1</code>.
      *
@@ -638,7 +626,6 @@ public abstract class CalendarMetrics
      * @return A new instance.
      */
     public abstract long prevMonth(long instance);
-
 
     /**
      * Moves the given instance backward by one or more months.
@@ -652,7 +639,6 @@ public abstract class CalendarMetrics
      */
     public abstract long prevMonth(long instance, int n);
 
-
     /**
      * Moves the given instance forward to the next (existing day).
      *
@@ -662,7 +648,6 @@ public abstract class CalendarMetrics
      * @return A new instance.
      */
     public abstract long nextDay(long instance);
-
 
     /**
      * Moves the given instance forward by one or more days.
@@ -676,7 +661,6 @@ public abstract class CalendarMetrics
      */
     public abstract long nextDay(long instance, int n);
 
-
     /**
      * Moves the given instance backward to the previous (existing) day.
      *
@@ -686,7 +670,6 @@ public abstract class CalendarMetrics
      * @return A new instance.
      */
     public abstract long prevDay(long instance);
-
 
     /**
      * Moves the given instance backward by one or more days.
@@ -796,6 +779,13 @@ public abstract class CalendarMetrics
         // two CalendarMetrics equal when their classes and the week definition are the same
         return getClass() == obj.getClass() && minDaysInFirstWeek == ((CalendarMetrics) obj).minDaysInFirstWeek
                 && weekStart == ((CalendarMetrics) obj).weekStart;
+    }
+
+
+    @Override
+    public String toString()
+    {
+        return mName;
     }
 
 

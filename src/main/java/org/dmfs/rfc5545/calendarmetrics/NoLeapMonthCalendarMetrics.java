@@ -36,14 +36,16 @@ public abstract class NoLeapMonthCalendarMetrics extends CalendarMetrics
     /**
      * Create calendar metrics for a calendar without leap months with the given week numbering.
      *
+     * @param name
+     *         The Name of the Calendar Scale.
      * @param weekStart
      *         The first day of the week.
      * @param minDaysInFirstWeek
      *         The minimal number of days in the first week.
      */
-    public NoLeapMonthCalendarMetrics(Weekday weekStart, int minDaysInFirstWeek)
+    public NoLeapMonthCalendarMetrics(String name, Weekday weekStart, int minDaysInFirstWeek)
     {
-        super(weekStart, minDaysInFirstWeek);
+        super(name, weekStart, minDaysInFirstWeek);
     }
 
 

@@ -28,7 +28,9 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import static org.hamcrest.Matchers.hasToString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 
 /**
@@ -751,4 +753,10 @@ public class JulianCalendarMetricsTest
         }
     }
 
+
+    @Test
+    public void testToString()
+    {
+        assertThat(new JulianCalendarMetrics(Weekday.MO, 4), hasToString("JULIAN"));
+    }
 }

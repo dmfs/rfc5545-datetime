@@ -33,7 +33,6 @@ public class IslamicCalendarMetrics extends NoLeapMonthCalendarMetrics
     public final static long DAYS_PER_CYCLE = 30 * 354 + 11;
     public final static long MILLIS_PER_DAY = 24 * 3600 * 1000;
 
-
     ;
     public final static long MILLIS_PER_CYCLE = DAYS_PER_CYCLE * MILLIS_PER_DAY;
     /**
@@ -68,6 +67,7 @@ public class IslamicCalendarMetrics extends NoLeapMonthCalendarMetrics
     private final int mLeapYearPatternIndex;
     private final boolean mCivil;
 
+
     /**
      * Create calendar metrics for an Islamic calendar with the given week numbering.
      *
@@ -76,9 +76,9 @@ public class IslamicCalendarMetrics extends NoLeapMonthCalendarMetrics
      * @param minDaysInFirstWeek
      *         The minimal number of days in the first week.
      */
-    public IslamicCalendarMetrics(Weekday weekStart, int minDaysInFirstWeek, LeapYearPattern leapYearPatternIndex, boolean civil)
+    public IslamicCalendarMetrics(String name, Weekday weekStart, int minDaysInFirstWeek, LeapYearPattern leapYearPatternIndex, boolean civil)
     {
-        super(weekStart, minDaysInFirstWeek);
+        super(name, weekStart, minDaysInFirstWeek);
         mLeapYearPatternIndex = leapYearPatternIndex.ordinal();
         mCivil = civil;
     }
@@ -406,7 +406,7 @@ public class IslamicCalendarMetrics extends NoLeapMonthCalendarMetrics
         @Override
         public CalendarMetrics getCalendarMetrics(Weekday weekStart)
         {
-            return new IslamicCalendarMetrics(weekStart, 4, mPattern, mCivil);
+            return new IslamicCalendarMetrics(mName, weekStart, 4, mPattern, mCivil);
         }
 
 

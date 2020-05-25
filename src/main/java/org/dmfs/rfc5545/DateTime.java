@@ -66,7 +66,7 @@ public final class DateTime
     /**
      * The packed instance of this {@link DateTime}. This will be {@link Long#MAX_VALUE} if it has not been calculated yet.
      *
-     * @see Instance.
+     * @see Instance
      */
     private long mInstance = Long.MAX_VALUE;
     /**

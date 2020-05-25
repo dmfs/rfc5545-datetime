@@ -57,7 +57,6 @@ public class IslamicCalendarMetricsTest
         initMaps4();
     }
 
-
     /**
      * Add a number of instances created with <a href="http://www.staff.science.uu.nl/~gent0113/islam/islam_tabcal.htm">Islamic-Western Calendar Converter</a>
      */
@@ -3660,7 +3659,7 @@ public class IslamicCalendarMetricsTest
     @Test
     public void testGetPackedMonthOfYearDay()
     {
-        CalendarMetrics testMetrics = new IslamicCalendarMetrics(Weekday.MO, 4, LeapYearPattern.II, true);
+        CalendarMetrics testMetrics = new IslamicCalendarMetrics("", Weekday.MO, 4, LeapYearPattern.II, true);
         for (int year = 1; year < 3000; ++year)
         {
             for (int month = 0; month < 12; ++month)
@@ -3750,7 +3749,7 @@ public class IslamicCalendarMetricsTest
     public void testGetDayOfWeekIntIntInt()
     {
         // TODO: add more tests, at least one for each year in the 30 year cycle
-        CalendarMetrics testMetrics = new IslamicCalendarMetrics(Weekday.MO, 4, LeapYearPattern.II, true);
+        CalendarMetrics testMetrics = new IslamicCalendarMetrics("", Weekday.MO, 4, LeapYearPattern.II, true);
         assertEquals(Weekday.FR.ordinal(), testMetrics.getDayOfWeek(1, 0, 1));
         assertEquals(Weekday.FR.ordinal(), testMetrics.getDayOfWeek(999, 1, 2));
         assertEquals(Weekday.TU.ordinal(), testMetrics.getDayOfWeek(1100, 2, 12));
@@ -3760,7 +3759,7 @@ public class IslamicCalendarMetricsTest
         assertEquals(Weekday.TH.ordinal(), testMetrics.getDayOfWeek(1499, 9, 25));
 
         // TODO: add more tests, at least one for each year in the 30 year cycle
-        testMetrics = new IslamicCalendarMetrics(Weekday.MO, 4, LeapYearPattern.II, false);
+        testMetrics = new IslamicCalendarMetrics("", Weekday.MO, 4, LeapYearPattern.II, false);
         assertEquals(Weekday.FR.ordinal(), testMetrics.getDayOfWeek(1, 0, 1));
         assertEquals(Weekday.FR.ordinal(), testMetrics.getDayOfWeek(999, 1, 2));
         assertEquals(Weekday.TU.ordinal(), testMetrics.getDayOfWeek(1100, 2, 12));
@@ -3791,25 +3790,25 @@ public class IslamicCalendarMetricsTest
     @Test
     public void testGetWeekDayOfFirstYearDay()
     {
-        CalendarMetrics testMetrics = new IslamicCalendarMetrics(Weekday.MO, 4, LeapYearPattern.I, true);
+        CalendarMetrics testMetrics = new IslamicCalendarMetrics("", Weekday.MO, 4, LeapYearPattern.I, true);
         for (int year = 1; year < 3000; ++year)
         {
             assertEquals(testMetrics.getDayOfWeek(year, 0, 1), testMetrics.getWeekDayOfFirstYearDay(year));
         }
 
-        testMetrics = new IslamicCalendarMetrics(Weekday.MO, 4, LeapYearPattern.II, true);
+        testMetrics = new IslamicCalendarMetrics("", Weekday.MO, 4, LeapYearPattern.II, true);
         for (int year = 1; year < 3000; ++year)
         {
             assertEquals(testMetrics.getDayOfWeek(year, 0, 1), testMetrics.getWeekDayOfFirstYearDay(year));
         }
 
-        testMetrics = new IslamicCalendarMetrics(Weekday.MO, 4, LeapYearPattern.III, true);
+        testMetrics = new IslamicCalendarMetrics("", Weekday.MO, 4, LeapYearPattern.III, true);
         for (int year = 1; year < 3000; ++year)
         {
             assertEquals(testMetrics.getDayOfWeek(year, 0, 1), testMetrics.getWeekDayOfFirstYearDay(year));
         }
 
-        testMetrics = new IslamicCalendarMetrics(Weekday.MO, 4, LeapYearPattern.IV, true);
+        testMetrics = new IslamicCalendarMetrics("", Weekday.MO, 4, LeapYearPattern.IV, true);
         for (int year = 1; year < 3000; ++year)
         {
             assertEquals(testMetrics.getDayOfWeek(year, 0, 1), testMetrics.getWeekDayOfFirstYearDay(year));
@@ -3844,7 +3843,7 @@ public class IslamicCalendarMetricsTest
             {
                 for (int civil = 0; civil < 2; ++civil)
                 {
-                    IslamicCalendarMetrics calendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.values()[pattern], civil == 1);
+                    IslamicCalendarMetrics calendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.values()[pattern], civil == 1);
                     {
                         for (long gregorian : DATE_MAPS[pattern][civil].keySet())
                         {
@@ -3880,7 +3879,7 @@ public class IslamicCalendarMetricsTest
             {
                 for (int civil = 0; civil < 2; ++civil)
                 {
-                    IslamicCalendarMetrics calendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.values()[pattern], civil == 1);
+                    IslamicCalendarMetrics calendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.values()[pattern], civil == 1);
                     {
                         for (long gregorian : DATE_MAPS[pattern][civil].keySet())
                         {
@@ -3900,35 +3899,35 @@ public class IslamicCalendarMetricsTest
     @Test
     public void testIslamicToGregorian()
     {
-        IslamicCalendarMetrics islamicCalendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.I, true);
+        IslamicCalendarMetrics islamicCalendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.I, true);
         assertEquals(Instance.make(1970, 0, 1, 0, 0, 0, 0), islamicCalendar.toGregorian(Instance.make(1389, 9, 22, 0, 0, 0, 0)));
 
-        islamicCalendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.I, false);
+        islamicCalendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.I, false);
         assertEquals(Instance.make(1970, 0, 1, 0, 0, 0, 0), islamicCalendar.toGregorian(Instance.make(1389, 9, 23, 0, 0, 0, 0)));
 
-        islamicCalendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.II, true);
+        islamicCalendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.II, true);
         assertEquals(Instance.make(1970, 0, 1, 0, 0, 0, 0), islamicCalendar.toGregorian(Instance.make(1389, 9, 22, 0, 0, 0, 0)));
 
-        islamicCalendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.II, false);
+        islamicCalendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.II, false);
         assertEquals(Instance.make(1970, 0, 1, 0, 0, 0, 0), islamicCalendar.toGregorian(Instance.make(1389, 9, 23, 0, 0, 0, 0)));
 
-        islamicCalendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.III, true);
+        islamicCalendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.III, true);
         assertEquals(Instance.make(1970, 0, 1, 0, 0, 0, 0), islamicCalendar.toGregorian(Instance.make(1389, 9, 22, 0, 0, 0, 0)));
 
-        islamicCalendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.III, false);
+        islamicCalendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.III, false);
         assertEquals(Instance.make(1970, 0, 1, 0, 0, 0, 0), islamicCalendar.toGregorian(Instance.make(1389, 9, 23, 0, 0, 0, 0)));
 
-        islamicCalendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.IV, true);
+        islamicCalendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.IV, true);
         assertEquals(Instance.make(1970, 0, 1, 0, 0, 0, 0), islamicCalendar.toGregorian(Instance.make(1389, 9, 22, 0, 0, 0, 0)));
 
-        islamicCalendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.IV, false);
+        islamicCalendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.IV, false);
         assertEquals(Instance.make(1970, 0, 1, 0, 0, 0, 0), islamicCalendar.toGregorian(Instance.make(1389, 9, 23, 0, 0, 0, 0)));
 
         for (int pattern = 0; pattern < 4; ++pattern)
         {
             for (int civil = 0; civil < 2; ++civil)
             {
-                IslamicCalendarMetrics calendar = new IslamicCalendarMetrics(Weekday.MO, 0, LeapYearPattern.values()[pattern], civil == 1);
+                IslamicCalendarMetrics calendar = new IslamicCalendarMetrics("", Weekday.MO, 0, LeapYearPattern.values()[pattern], civil == 1);
                 {
                     for (long gregorian : DATE_MAPS[pattern][civil].keySet())
                     {
