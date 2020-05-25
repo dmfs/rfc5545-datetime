@@ -102,7 +102,7 @@ public class DateTimeTest
     public void testDateTimeCalendarMetricsDateTime()
     {
         CalendarMetrics gregorian = new GregorianCalendarMetrics(Weekday.MO, 4);
-        CalendarMetrics islamic = new IslamicCalendarMetrics(Weekday.MO, 4, IslamicCalendarMetrics.LeapYearPattern.I, true);
+        CalendarMetrics islamic = new IslamicCalendarMetrics("", Weekday.MO, 4, IslamicCalendarMetrics.LeapYearPattern.I, true);
 
         DateTime allday = DateTime.parse(gregorian, null, "20151212");
         DateTime floating = DateTime.parse(gregorian, null, "20151212T130000");
@@ -139,7 +139,7 @@ public class DateTimeTest
     public void testDateTimeCalendarMetricsTimeZoneDateTime()
     {
         CalendarMetrics gregorian = new GregorianCalendarMetrics(Weekday.MO, 4);
-        CalendarMetrics islamic = new IslamicCalendarMetrics(Weekday.MO, 4, IslamicCalendarMetrics.LeapYearPattern.I, true);
+        CalendarMetrics islamic = new IslamicCalendarMetrics("", Weekday.MO, 4, IslamicCalendarMetrics.LeapYearPattern.I, true);
 
         DateTime allday = DateTime.parse(gregorian, null, "20151212");
         DateTime floating = DateTime.parse(gregorian, null, "20151212T130000");

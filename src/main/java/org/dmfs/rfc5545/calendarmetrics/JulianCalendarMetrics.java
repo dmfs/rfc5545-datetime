@@ -40,7 +40,7 @@ public class JulianCalendarMetrics extends GregorianCalendarMetrics
         @Override
         public CalendarMetrics getCalendarMetrics(Weekday weekStart)
         {
-            return new JulianCalendarMetrics(weekStart, 4);
+            return new JulianCalendarMetrics(CALENDAR_SCALE_ALIAS, weekStart, 4);
         }
 
 
@@ -67,7 +67,21 @@ public class JulianCalendarMetrics extends GregorianCalendarMetrics
      */
     public JulianCalendarMetrics(Weekday weekStart, int minDaysInFirstWeek)
     {
-        super(weekStart, minDaysInFirstWeek);
+        super(CALENDAR_SCALE_ALIAS, weekStart, minDaysInFirstWeek);
+    }
+
+
+    /**
+     * Create calendar metrics for a Julian calendar with the given week numbering.
+     *
+     * @param weekStart
+     *         The first day of the week.
+     * @param minDaysInFirstWeek
+     *         The minimal number of days in the first week.
+     */
+    JulianCalendarMetrics(String name, Weekday weekStart, int minDaysInFirstWeek)
+    {
+        super(name, weekStart, minDaysInFirstWeek);
     }
 
 
@@ -127,7 +141,8 @@ public class JulianCalendarMetrics extends GregorianCalendarMetrics
         GregorianCalendarMetrics gregorianMetrics = mGregorianCalendarMetrics;
         if (gregorianMetrics == null)
         {
-            gregorianMetrics = mGregorianCalendarMetrics = new GregorianCalendarMetrics(weekStart, minDaysInFirstWeek);
+            gregorianMetrics = mGregorianCalendarMetrics = new GregorianCalendarMetrics(GregorianCalendarMetrics.CALENDAR_SCALE_ALIAS, weekStart,
+                    minDaysInFirstWeek);
         }
 
         // adjust day of month over- or under-run
