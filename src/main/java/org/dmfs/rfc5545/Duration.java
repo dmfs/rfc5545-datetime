@@ -26,9 +26,8 @@ import java.util.TimeZone;
  * Represents duration values as specified in <a href="https://tools.ietf.org/html/rfc5545#section-3.3.6">RFC 5545, Section 3.3.6</a>.
  * <p>
  * Objects of this class are immutable.
- * </p>
  *
- * @author Marten Gajda <marten@dmfs.org>
+ * @author Marten Gajda
  */
 public final class Duration
 {

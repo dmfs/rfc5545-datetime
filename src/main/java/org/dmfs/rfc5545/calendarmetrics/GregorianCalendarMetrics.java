@@ -26,7 +26,7 @@ import java.util.TimeZone;
 /**
  * Provides a set of methods that provide information about the Gregorian Calendar.
  *
- * @author Marten Gajda <marten@dmfs.org>
+ * @author Marten Gajda
  */
 public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
 {

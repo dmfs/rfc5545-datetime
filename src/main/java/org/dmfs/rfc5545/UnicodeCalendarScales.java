@@ -30,10 +30,10 @@ import java.util.Map;
 
 /**
  * Helper class to convert Unicode calendar names to {@link CalendarMetrics}.
+ * <p>
+ * See http://www.unicode.org/repos/cldr/tags/latest/common/bcp47/calendar.xml
  *
- * @author Marten Gajda <marten@dmfs.org>
- * @see <a href="http://www.unicode.org/repos/cldr/tags/latest/common/bcp47/calendar.xml>http://www.unicode.org/repos/cldr/tags/latest/common/bcp47/calendar.xml</a
- * >
+ * @author Marten Gajda
  */
 public final class UnicodeCalendarScales
 {
@@ -52,7 +52,6 @@ public final class UnicodeCalendarScales
                 IslamicCalendarMetrics.CALENDAR_SCALE_CIVIL, LeapYearPattern.II, true));
         CALENDAR_SCALES.put("ISLAMICC", CALENDAR_SCALES.get(IslamicCalendarMetrics.CALENDAR_SCALE_CIVIL));
     }
-
 
     public static CalendarMetricsFactory getCalendarMetricsForName(String calendarScaleName)
     {
