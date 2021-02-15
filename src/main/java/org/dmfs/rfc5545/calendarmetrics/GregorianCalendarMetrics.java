@@ -54,24 +54,91 @@ public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
      * An array of {@link Weekday}s. This is handy to get a {@link Weekday} instance for a given weekday number.
      */
     public final static Weekday[] WEEKDAYS = Weekday.values();
+
     /**
-     * The number of days in a specific month. This is for non-leap years. For leap years add <code>1</code> to <code>DAYS_PER_MONTH[1]</code>.
+     * Packed array of the days per month minus 28 in a non-leap year. The maximum difference is just 3 days (31-28) so we can easily store 12 of these 2 bit
+     * values in an int.
      */
-    private final static int[] DAYS_PER_MONTH = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    private final static int DAYS_PER_MONTH =
+        (3 << 0)
+            + (0 << 2)
+            + (3 << 4)
+            + (2 << 6)
+            + (3 << 8)
+            + (2 << 10)
+            + (3 << 12)
+            + (3 << 14)
+            + (2 << 16)
+            + (3 << 18)
+            + (2 << 20)
+            + (3 << 22);
+
     /**
-     * The number of days preceding a specific month in a year. This is for non-leap years. For leap years add <code>1</code> to
-     * <code>YEARDAYS_PER_MONTH[i]</code> for all <code>i > 1<code>.
+     * Packed array of the days per month minus 28 in a leap year. The maximum difference is just 3 days (31-28) so we can easily store 12 of these 2 bit values
+     * in an int.
      */
-    private final static int[] YEARDAYS_PER_MONTH = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
+    private final static int DAYS_PER_MONTH_LEAPYEAR =
+        (3 << 0)
+            + (1 << 2)
+            + (3 << 4)
+            + (2 << 6)
+            + (3 << 8)
+            + (2 << 10)
+            + (3 << 12)
+            + (3 << 14)
+            + (2 << 16)
+            + (3 << 18)
+            + (2 << 20)
+            + (3 << 22);
+
+    /**
+     * The number of days preceding a specific month. This stores the difference between 30 * month - 1 and the actual value.
+     * <p>
+     * Except in march, in a non-leap year, the (0-based) month number, multiplied by 30 is off by less than 5. Thus the value can be stored in a packed array
+     * of 3 bit values. The value for march is off by -1, which can be compensated by subtracting 1 from the result and adding 1 to all of the other values.
+     */
+    private final static long DAYS_BEFORE_MONTH =
+        (1 << 0)
+            | (2 << 3)
+            | (0 << 6)
+            | (1 << 9)
+            | (1 << 12)
+            | (2 << 15)
+            | (2 << 18)
+            | (3 << 21)
+            | (4 << 24)
+            | (4 << 27)
+            | (5L << 30)
+            | (5L << 33);
+
+    /**
+     * The number of days preceding a specific month. This stores the difference between 30 * month - 1 and the actual value.
+     * <p>
+     * Except in march, in a non-leap year, the (0-based) month number, multiplied by 30 is off by less than 5. Thus the value can be stored in a packed array
+     * of 3 bit values. The value for march is off by -1, which can be compensated by subtracting 1 from the result and adding 1 to all of the other values.
+     */
+    private final static long DAYS_BEFORE_MONTH_LEADYEAR =
+        (1 << 0)
+            | (2 << 3)
+            | (1 << 6)
+            | (2 << 9)
+            | (2 << 12)
+            | (3 << 15)
+            | (3 << 18)
+            | (4 << 21)
+            | (5 << 24)
+            | (5 << 27)
+            | (6L << 30)
+            | (6L << 33);
 
 
     /**
      * Create calendar metrics for a Gregorian calendar with the given week numbering.
      *
      * @param weekStart
-     *         The first day of the week.
+     *     The first day of the week.
      * @param minDaysInFirstWeek
-     *         The minimal number of days in the first week.
+     *     The minimal number of days in the first week.
      */
     public GregorianCalendarMetrics(Weekday weekStart, int minDaysInFirstWeek)
     {
@@ -83,9 +150,9 @@ public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
      * Create calendar metrics for a Gregorian calendar with the given week numbering.
      *
      * @param weekStart
-     *         The first day of the week.
+     *     The first day of the week.
      * @param minDaysInFirstWeek
-     *         The minimal number of days in the first week.
+     *     The minimal number of days in the first week.
      */
     GregorianCalendarMetrics(String name, Weekday weekStart, int minDaysInFirstWeek)
     {
@@ -117,28 +184,14 @@ public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
     @Override
     public int getDaysPerPackedMonth(int year, int packedMonth)
     {
-        if (packedMonth == 1 && isLeapYear(year))
-        {
-            return DAYS_PER_MONTH[packedMonth] + 1;
-        }
-        else
-        {
-            return DAYS_PER_MONTH[packedMonth];
-        }
+        return 28 + (((isLeapYear(year) ? DAYS_PER_MONTH_LEAPYEAR : DAYS_PER_MONTH) >> (packedMonth * 2)) & 0x03);
     }
 
 
     @Override
     public int getYearDaysForPackedMonth(int year, int packedMonth)
     {
-        if (packedMonth > 1 && isLeapYear(year))
-        {
-            return YEARDAYS_PER_MONTH[packedMonth] + 1;
-        }
-        else
-        {
-            return YEARDAYS_PER_MONTH[packedMonth];
-        }
+        return (int) (packedMonth * 30 - 1 + (((isLeapYear(year) ? DAYS_BEFORE_MONTH_LEADYEAR : DAYS_BEFORE_MONTH) >> (packedMonth * 3)) & 0x07));
     }
 
 
@@ -200,7 +253,7 @@ public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
      * Determine if the given year is a leap year.
      *
      * @param year
-     *         The year.
+     *     The year.
      *
      * @return <code>true</code> if the year is a leap year, <code>false</code> otherwise.
      */
@@ -224,11 +277,17 @@ public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
     {
         int jan1stWeekDay = getWeekDayOfFirstYearDay(year);
 
-        int diff = weekStartInt - jan1stWeekDay;
+        int yd = 1 + weekStartInt - jan1stWeekDay;
 
-        int yd = 1 + diff;
-
-        return yd > minDaysInFirstWeek ? yd - 7 : yd < minDaysInFirstWeek - 6 ? yd + 7 : yd;
+        if (yd > minDaysInFirstWeek)
+        {
+            return yd - 7;
+        }
+        if (yd < minDaysInFirstWeek - 6)
+        {
+            return yd + 7;
+        }
+        return yd;
     }
 
 
@@ -314,7 +373,7 @@ public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
         int dayOfWeek = getDayOfWeek(year, packedMonth, dayOfMonth);
 
         int dstOffset = timeZone == null ? 0 : (timeZone.getOffset(1 /* GregorianCalendar.AD */, year, packedMonth, dayOfMonth,
-                dayOfWeek + 1/* Calendar uses 1-7 */, timeInMillis) - timeZone.getRawOffset());
+            dayOfWeek + 1/* Calendar uses 1-7 */, timeInMillis) - timeZone.getRawOffset());
 
         int yearDay = getDayOfYear(year, packedMonth, dayOfMonth);
         long localTime = getTimeStamp(year, yearDay, hours, minutes, seconds, millis);
