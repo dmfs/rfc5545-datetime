@@ -350,7 +350,7 @@ public class DateTimeTest
                                 testCal.set(year, month, day, hour, minute, 0);
 
                                 long timestamp = new DateTime(tools, zone, year, month, day, hour, minute, 0).getTimestamp();
-                                assertEquals(testCal.getTimeInMillis(), timestamp);
+                                assertEquals(FirstOccurrence.of(testCal.getTimeInMillis(), zone), timestamp);
                             }
                         }
                     }

@@ -20,6 +20,7 @@ package org.dmfs.rfc5545.calendarmetrics;
 import org.dmfs.rfc5545.Instance;
 import org.dmfs.rfc5545.Weekday;
 
+import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
 
@@ -58,6 +59,15 @@ public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
      * The number of days in a specific month. This is for non-leap years. For leap years add <code>1</code> to <code>DAYS_PER_MONTH[1]</code>.
      */
     private final static int[] DAYS_PER_MONTH = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    /**
+     * How far back {@link #toMillis(TimeZone, int, int, int, int, int, int, int)} looks for the offset before a backward transition. Must exceed the longest
+     * overlap.
+     */
+    private final static long OVERLAP_PROBE_MILLIS = 24L * 60 * 60 * 1000;
+    /**
+     * The class of the time zones {@link TimeZone#getTimeZone(String)} returns.
+     */
+    private final static Class<?> JDK_TIME_ZONE_CLASS = TimeZone.getTimeZone("UTC").getClass();
     /**
      * The number of days preceding a specific month in a year. This is for non-leap years. For leap years add <code>1</code> to
      * <code>YEARDAYS_PER_MONTH[i]</code> for all <code>i > 1<code>.
@@ -351,7 +361,22 @@ public class GregorianCalendarMetrics extends NoLeapMonthCalendarMetrics
 
         int offset2 = timeZone == null ? 0 : timeZone.getOffset(1 /* GregorianCalendar.AD */, year, packedMonth, dayOfMonth, dayOfWeek + 1, timeInMillis);
 
-        return localTime - offset2;
+        long result = localTime - offset2;
+        if (timeZone != null && (timeZone.getClass() == JDK_TIME_ZONE_CLASS || timeZone.getClass() == SimpleTimeZone.class))
+        {
+            /*
+             * A local time in the overlap of a backward transition (e.g. the end of DST) has two valid interpretations and the code above yields the later one.
+             * RFC 5545, section 3.3.5 asks for the first one, which uses the larger offset in effect before the transition. Switch only if the offsets at both
+             * instants confirm both interpretations. This relies on an exact getOffset(long), so it is limited to the JDK's own implementations; others, such
+             * as ical4j's, may depend on the default time zone and keep the previous result.
+             */
+            int earlierOffset = timeZone.getOffset(result - OVERLAP_PROBE_MILLIS);
+            if (earlierOffset > offset2 && timeZone.getOffset(result) == offset2 && timeZone.getOffset(localTime - earlierOffset) == earlierOffset)
+            {
+                return localTime - earlierOffset;
+            }
+        }
+        return result;
     }
 
 
