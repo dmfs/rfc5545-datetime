@@ -17,6 +17,7 @@
 
 package org.dmfs.rfc5545.calendarmetrics;
 
+import org.dmfs.rfc5545.FirstOccurrence;
 import org.dmfs.rfc5545.Instance;
 import org.dmfs.rfc5545.Weekday;
 import org.junit.Before;
@@ -696,7 +697,7 @@ public class JulianCalendarMetricsTest
                                 // errMsg = "getUtcTimeStamp failed for year=" + year + " month=" + month + " day=" + day + " weekStart=" + " minDays="
                                 // + minDaysInFirstWeek;
 
-                                assertEquals(errMsg, testCal.getTimeInMillis(), tools.toMillis(zone, year, month, day, hour, minute, 0, 0));
+                                assertEquals(errMsg, FirstOccurrence.of(testCal.getTimeInMillis(), zone), tools.toMillis(zone, year, month, day, hour, minute, 0, 0));
                             }
                         }
                     }

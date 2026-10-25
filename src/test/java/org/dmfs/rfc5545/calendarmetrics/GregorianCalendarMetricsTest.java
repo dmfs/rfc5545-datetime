@@ -17,11 +17,17 @@
 
 package org.dmfs.rfc5545.calendarmetrics;
 
+import org.dmfs.rfc5545.FirstOccurrence;
 import org.dmfs.rfc5545.Instance;
 import org.dmfs.rfc5545.Weekday;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.zone.ZoneOffsetTransition;
+import java.time.zone.ZoneRules;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -676,7 +682,7 @@ public class GregorianCalendarMetricsTest
                                 // errMsg = "getUtcTimeStamp failed for year=" + year + " month=" + month + " day=" + day + " weekStart=" + " minDays="
                                 // + minDaysInFirstWeek;
 
-                                assertEquals(errMsg, testCal.getTimeInMillis(), tools.toMillis(zone, year, month, day, hour, minute, 0, 0));
+                                assertEquals(errMsg, FirstOccurrence.of(testCal.getTimeInMillis(), zone), tools.toMillis(zone, year, month, day, hour, minute, 0, 0));
                             }
                         }
                     }
@@ -802,6 +808,49 @@ public class GregorianCalendarMetricsTest
                         }
                     }
                 }
+            }
+        }
+    }
+
+
+    @Test
+    public void testToMillisRepeatedLocalTime()
+    {
+        GregorianCalendarMetrics metrics = new GregorianCalendarMetrics(Weekday.MO, 4);
+        TimeZone berlin = TimeZone.getTimeZone("Europe/Berlin");
+        // RFC 5545, section 3.3.5: a local time that occurs twice refers to its first occurrence
+        assertEquals(1792887240000L /* 2026-10-25T00:14:00Z = 02:14 CEST */, metrics.toMillis(berlin, 2026, 9, 25, 2, 14, 0, 0));
+        assertEquals(1793511000000L /* 2026-11-01T05:30:00Z = 01:30 EDT */, metrics.toMillis(TimeZone.getTimeZone("America/New_York"), 2026, 10, 1, 1, 30, 0, 0));
+        // the hours around it are unique
+        assertEquals(1792886340000L /* 2026-10-24T23:59:00Z = 01:59 CEST */, metrics.toMillis(berlin, 2026, 9, 25, 1, 59, 0, 0));
+        assertEquals(1792893600000L /* 2026-10-25T02:00:00Z = 03:00 CET */, metrics.toMillis(berlin, 2026, 9, 25, 3, 0, 0, 0));
+        // a skipped local time keeps the offset before the gap
+        assertEquals(1774746840000L /* 2026-03-29T01:14:00Z = 03:14 CEST */, metrics.toMillis(berlin, 2026, 2, 29, 2, 14, 0, 0));
+    }
+
+
+    @Test
+    public void testToMillisRepeatedLocalTimeAllZones()
+    {
+        GregorianCalendarMetrics metrics = new GregorianCalendarMetrics(Weekday.MO, 4);
+        Instant end = Instant.parse("2038-01-01T00:00:00Z");
+        for (String id : ZoneId.getAvailableZoneIds())
+        {
+            TimeZone timeZone = TimeZone.getTimeZone(id);
+            ZoneRules rules = ZoneId.of(id).getRules();
+            ZoneOffsetTransition transition = rules.nextTransition(Instant.parse("1970-01-01T00:00:00Z"));
+            while (transition != null && transition.getInstant().isBefore(end))
+            {
+                if (transition.isOverlap())
+                {
+                    for (LocalDateTime local = transition.getDateTimeAfter(); local.isBefore(transition.getDateTimeBefore()); local = local.plusMinutes(15))
+                    {
+                        assertEquals(id + " " + local, local.atZone(ZoneId.of(id)).toInstant().toEpochMilli(),
+                                metrics.toMillis(timeZone, local.getYear(), local.getMonthValue() - 1, local.getDayOfMonth(), local.getHour(), local.getMinute(),
+                                        local.getSecond(), 0));
+                    }
+                }
+                transition = rules.nextTransition(transition.getInstant());
             }
         }
     }
